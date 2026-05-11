@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="DCA Portfolio"/>
+<meta name="theme-color" content="#0d1117"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>DCA Portfolio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#0d1117;--card:#161b22;--card2:#1c2128;--inp:#0e1118;--border:#30363d;--txt:#e6edf3;--txt2:#8b949e;--txt3:#484f58;--grn:#3fb950;--red:#f85149;--btc:#F7931A;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;}
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+.hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;background:var(--bg);border-bottom:1px solid var(--border);}
+.hdr-logo{font-size:17px;font-weight:700;color:var(--txt);letter-spacing:-.3px;}
+.hdr-logo span{color:var(--btc);}
+.live-dot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr-right{margin-left:auto;}
+.eye-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--txt2);font-size:12px;padding:5px 10px;cursor:pointer;}
+.tab-nav{display:flex;background:var(--bg);border-bottom:1px solid var(--border);}
+.tab-item{flex:1;padding:11px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.tab-item.active{color:var(--btc);border-bottom-color:var(--btc);}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px calc(20px + var(--safe-bot));}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;}
+/* Portfolio summary */
+.port-total{text-align:center;padding:16px 0 10px;}
+.port-lbl{font-size:11px;color:var(--txt2);margin-bottom:4px;}
+.port-val{font-size:30px;font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
+.port-usd{font-size:13px;color:var(--txt2);margin-top:2px;}
+.port-pnl{display:inline-flex;align-items:center;margin-top:8px;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600;}
+.port-pnl.up{background:rgba(63,185,80,.12);color:var(--grn);}
+.port-pnl.dn{background:rgba(248,81,73,.12);color:var(--red);}
+/* Alloc bar */
+.alloc-wrap{padding-top:10px;margin-top:10px;border-top:1px solid var(--border);}
+.alloc-lbl{font-size:10px;color:var(--txt2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.alloc-bar{height:6px;background:var(--inp);border-radius:3px;overflow:hidden;display:flex;margin-bottom:8px;}
+.alloc-seg{height:100%;}
+.alloc-legend{display:flex;flex-wrap:wrap;gap:8px;}
+.alloc-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);}
+.alloc-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+/* Coin cards */
+.coin-card{background:var(--card2);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid transparent;transition:border .15s;}
+.coin-card:active{border-color:var(--btc);}
+.coin-ic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;}
+.coin-info{flex:1;min-width:0;}
+.coin-name{font-size:14px;font-weight:600;color:var(--txt);}
+.coin-sub{font-size:11px;color:var(--txt2);margin-top:1px;font-variant-numeric:tabular-nums;}
+.coin-right{text-align:right;flex-shrink:0;}
+.coin-val{font-size:14px;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;}
+.coin-pnl{font-size:12px;font-weight:500;margin-top:2px;}
+.coin-pnl.up{color:var(--grn);}
+.coin-pnl.dn{color:var(--red);}
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.mc{background:var(--card);border-radius:12px;padding:12px 13px;}
+.mc-lbl{font-size:10px;color:var(--txt2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+.mc-val{font-size:17px;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;}
+.mc-val.up{color:var(--grn);}
+.mc-val.dn{color:var(--red);}
+.mc-sub{font-size:11px;color:var(--txt2);margin-top:2px;}
+.mc-sub.up{color:var(--grn);}
+.mc-sub.dn{color:var(--red);}
+/* Detail */
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--btc);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:14px;padding:4px 0;}
+.coin-hdr-big{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.coin-ic-big{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;flex-shrink:0;}
+/* Goal */
+.goal-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;}
+.goal-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px;}
+.g-lbl{font-size:10px;color:var(--txt2);margin-bottom:2px;}
+.g-num{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;}
+.g-num-r{text-align:right;color:var(--txt3);}
+.prog-track{height:7px;background:var(--inp);border-radius:4px;overflow:hidden;margin:6px 0;}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s;}
+.goal-foot{display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);}
+.goal-pct{font-weight:600;}
+.goal-inp-row{display:flex;gap:8px;margin-bottom:10px;}
+.goal-inp-row input{flex:1;height:40px;background:var(--inp);border:1px solid var(--border);border-radius:10px;color:var(--txt);font-size:14px;padding:0 12px;outline:none;-webkit-appearance:none;}
+.gbtn{height:40px;border:none;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;padding:0 14px;-webkit-appearance:none;}
+.gbtn.p{background:var(--btc);color:#fff;}
+.gbtn.g{background:var(--card2);color:var(--txt2);}
+/* Form */
+.form-stack{display:flex;flex-direction:column;gap:10px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;color:var(--txt2);font-weight:500;}
+.fg input,.fg select{height:46px;background:var(--inp);border:1px solid var(--border);border-radius:12px;color:var(--txt);font-size:15px;padding:0 14px;outline:none;-webkit-appearance:none;width:100%;}
+.fg input:focus,.fg select:focus{border-color:var(--btc);}
+.fg input.auto-c{color:var(--btc);}
+.mode-toggle{display:flex;background:var(--inp);border-radius:12px;padding:3px;gap:3px;margin-bottom:4px;}
+.mode-btn{flex:1;height:34px;border:none;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;color:var(--txt2);background:transparent;-webkit-appearance:none;transition:all .15s;}
+.mode-btn.active{background:var(--card2);color:var(--btc);border:1px solid var(--border);}
+.btn-save{height:50px;background:var(--btc);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-top:4px;-webkit-appearance:none;}
+.btn-save:active{opacity:.8;}
+/* History */
+.search-box{width:100%;height:40px;background:var(--inp);border:1px solid var(--border);border-radius:10px;color:var(--txt);font-size:14px;padding:0 14px;outline:none;-webkit-appearance:none;margin-bottom:10px;}
+.entry-card{background:var(--card2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.entry-left{flex:1;min-width:0;}
+.entry-date{font-size:11px;color:var(--txt2);margin-bottom:2px;}
+.entry-amt{font-size:14px;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;}
+.entry-sub{font-size:11px;color:var(--txt2);margin-top:1px;font-variant-numeric:tabular-nums;}
+.entry-right{text-align:right;flex-shrink:0;}
+.entry-pnl{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;}
+.entry-pnl.up{color:var(--grn);}
+.entry-pnl.dn{color:var(--red);}
+.entry-price{font-size:11px;color:var(--txt2);margin-top:1px;}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--txt3);font-size:18px;padding:4px 6px;}
+.del-btn:active{color:var(--red);}
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--inp);color:var(--txt2);transition:all .15s;}
+.chip.active{border-color:var(--btc);color:var(--btc);background:rgba(247,147,26,.1);}
+/* Section title */
+.sec-tt{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:12px;}
+.btn-goal{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--txt2);font-size:11px;padding:5px 10px;cursor:pointer;margin-left:auto;-webkit-appearance:none;}
+/* Empty */
+.empty-state{text-align:center;padding:40px 20px;color:var(--txt3);font-size:13px;line-height:2;}
+.toast{position:fixed;bottom:calc(24px + var(--safe-bot));left:50%;transform:translateX(-50%);background:var(--card2);color:var(--txt);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;border:1px solid var(--border);white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-logo">DCA<span>Port</span></div>
+    <div class="live-dot" id="live-dot"></div>
+    <div class="hdr-right"><button class="eye-btn" onclick="toggleHide()">ซ่อน/แสดง</button></div>
+  </div>
+  <div class="tab-nav">
+    <div class="tab-item active" id="tab-port" onclick="showTab('port')">พอร์ต</div>
+    <div class="tab-item" id="tab-add" onclick="showTab('add')">+ บันทึก</div>
+    <div class="tab-item" id="tab-hist" onclick="showTab('hist')">ประวัติ</div>
+  </div>
+
+  <!-- PORT -->
+  <div class="scroll" id="page-port">
+    <div class="card">
+      <div class="port-total">
+        <div class="port-lbl">มูลค่าพอร์ตรวม</div>
+        <div class="port-val maskable" id="total-thb">฿0</div>
+        <div class="port-usd maskable" id="total-usd">$0</div>
+        <div id="total-pnl" style="display:none;"></div>
+      </div>
+      <div id="alloc-wrap" style="display:none;" class="alloc-wrap">
+        <div class="alloc-lbl">สัดส่วนพอร์ต</div>
+        <div class="alloc-bar" id="alloc-bar"></div>
+        <div class="alloc-legend" id="alloc-legend"></div>
+      </div>
+    </div>
+    <div id="coin-list"></div>
+    <div id="coin-detail" style="display:none;"></div>
+  </div>
+
+  <!-- ADD -->
+  <div class="scroll" id="page-add" style="display:none;">
+    <div class="card">
+      <div class="sec-tt">บันทึก DCA</div>
+      <div class="chips" id="coin-chips"></div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-auto" onclick="setMode('auto')">คำนวณอัตโนมัติ</button>
+        <button class="mode-btn" id="mode-manual" onclick="setMode('manual')">กรอกจำนวนเอง</button>
+      </div>
+      <div class="form-stack">
+        <div class="fg"><label>วันที่ซื้อ</label><input type="date" id="f-date"/></div>
+        <div class="fg"><label>จำนวนเงิน (บาท)</label><input type="number" id="f-amt" placeholder="0.00" min="0" step="any" inputmode="decimal" oninput="calcAuto()"/></div>
+        <div id="auto-fields">
+          <div class="fg"><label>ราคาที่ซื้อ (บาท/เหรียญ) — เว้นว่างใช้ราคาปัจจุบัน</label><input type="number" id="f-price" placeholder="ราคาปัจจุบัน" min="0" step="any" inputmode="decimal" oninput="calcAuto()"/></div>
+          <div class="fg" style="margin-top:8px;"><label>จำนวนเหรียญ (คำนวณอัตโนมัติ)</label><input id="f-qty-auto" class="auto-c" placeholder="—" readonly/></div>
+        </div>
+        <div id="manual-fields" style="display:none;">
+          <div class="fg"><label>จำนวนเหรียญที่ได้รับจริง (จากพอร์ต)</label><input type="number" id="f-qty-manual" placeholder="0.00000000" min="0" step="any" inputmode="decimal" oninput="calcManualPrice()"/></div>
+          <div class="fg" style="margin-top:8px;"><label>ราคาทุน (บาท/เหรียญ) — คำนวณอัตโนมัติ</label><input id="f-price-manual" class="auto-c" placeholder="—" readonly/></div>
+        </div>
+        <div class="fg"><label>หมายเหตุ (ไม่บังคับ)</label><input type="text" id="f-note" placeholder="เช่น DCA รายเดือน"/></div>
+        <button class="btn-save" onclick="addEntry()">บันทึกข้อมูล</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIST -->
+  <div class="scroll" id="page-hist" style="display:none;">
+    <div class="chips" id="hist-chips"></div>
+    <input class="search-box" id="srch" placeholder="ค้นหาวันที่, จำนวนเงิน..." oninput="renderHistory()"/>
+    <div id="entry-list"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const COINS={
+  BTC:{name:'Bitcoin', color:'#F7931A',icon:'B',dec:8,cgid:'bitcoin'},
+  ETH:{name:'Ethereum',color:'#627EEA',icon:'E',dec:6,cgid:'ethereum'},
+  SOL:{name:'Solana',  color:'#9945FF',icon:'S',dec:4,cgid:'solana'},
+  BNB:{name:'BNB',     color:'#F3BA2F',icon:'B',dec:4,cgid:'binancecoin'},
+  XRP:{name:'XRP',     color:'#00AAE4',icon:'X',dec:2,cgid:'ripple'},
+  ADA:{name:'Cardano', color:'#0033AD',icon:'A',dec:2,cgid:'cardano'},
+  DOGE:{name:'Dogecoin',color:'#C2A633',icon:'D',dec:2,cgid:'dogecoin'},
+  USDT:{name:'Tether', color:'#26A17B',icon:'T',dec:2,cgid:'tether'},
+};
+
+let entries=[],goals={},prices={},hidden=false,inputMode='auto',selCoin='BTC',histCoin='ALL',detailCoin=null;
+
+try{entries=JSON.parse(localStorage.getItem('dca_e')||'[]');}catch(e){}
+try{goals=JSON.parse(localStorage.getItem('dca_g')||'{}');}catch(e){}
+
+// migrate from old BTC-only version (bdca_e)
+try{
+  if(!entries.length){
+    const old=JSON.parse(localStorage.getItem('bdca_e')||'[]');
+    if(old.length){
+      entries=old.map(e=>({...e,coin:'BTC',qty:e.sat/1e8}));
+      localStorage.setItem('dca_e',JSON.stringify(entries));
+      console.log('migrated',entries.length,'entries from old version');
+    }
+  }
+  if(!Object.keys(goals).length){
+    const og=parseFloat(localStorage.getItem('bdca_g'));
+    if(og>0){goals={BTC:og};localStorage.setItem('dca_g',JSON.stringify(goals));}
+  }
+}catch(e){}
+
+const fB=(n,d=0)=>'฿'+Number(n).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fN=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fP=(n)=>(n>=0?'+':'')+n.toFixed(2)+'%';
+const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+function showTab(t){
+  ['port','add','hist'].forEach(x=>{
+    document.getElementById('page-'+x).style.display=x===t?'block':'none';
+    document.getElementById('tab-'+x).className='tab-item'+(x===t?' active':'');
+  });
+  if(t==='add'){detailCoin=null;renderChips();}
+  if(t==='hist'){renderHistChips();renderHistory();}
+  if(t==='port'){detailCoin=null;renderPort();}
+}
+
+async function fetchPrices(){
+  // Primary: Binance (CORS-friendly, no API key needed)
+  try{
+    const pairs=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','ADAUSDT','DOGEUSDT'];
+    const syms=['BTC','ETH','SOL','BNB','XRP','ADA','DOGE'];
+    // fetch all at once via 24hr ticker (includes price + change)
+    const [tickerRes, usdthbRes] = await Promise.all([
+      fetch('https://api.binance.com/api/v3/ticker/price').then(r=>r.json()),
+      fetch('https://api.binance.com/api/v3/avgPrice?symbol=USDTTHB').then(r=>r.json()).catch(()=>({price:'33.8'}))
+    ]);
+    const usdthb = parseFloat(usdthbRes.price)||33.8;
+    const map={};
+    tickerRes.forEach(t=>{ map[t.symbol]=parseFloat(t.price); });
+    syms.forEach(sym=>{
+      const usd=map[sym+'USDT'];
+      if(usd) prices[sym]={thb:usd*usdthb,usd};
+    });
+    prices['USDT']={thb:usdthb,usd:1};
+    document.getElementById('live-dot').style.background='#3fb950';
+    renderPort();
+  }catch(e){
+    document.getElementById('live-dot').style.background='#f85149';
+    console.warn('fetchPrices error',e);
+  }
+}
+
+function aggregate(){
+  const map={};
+  entries.forEach(e=>{
+    if(!map[e.coin])map[e.coin]={entries:[],inv:0,qty:0};
+    map[e.coin].entries.push(e);
+    map[e.coin].inv+=e.thb;
+    map[e.coin].qty+=e.qty;
+  });
+  return map;
+}
+
+function renderPort(){
+  if(detailCoin){renderDetail(detailCoin);return;}
+  const map=aggregate();
+  const syms=Object.keys(map);
+  let gVal=0,gInv=0;
+  syms.forEach(s=>{const p=prices[s];if(p)gVal+=map[s].qty*p.thb;gInv+=map[s].inv;});
+  const gPnl=gVal-gInv,gPct=gInv>0?gPnl/gInv*100:0;
+  const gUsd=syms.reduce((s,sym)=>{const p=prices[sym];return s+(p?map[sym].qty*p.usd:0);},0);
+
+  set('total-thb',fB(gVal,0));
+  set('total-usd','$'+fN(gUsd,0));
+  const pe=document.getElementById('total-pnl');
+  if(gInv>0){pe.style.display='inline-flex';pe.textContent=(gPnl>=0?'+':'')+fB(gPnl,0)+'  '+fP(gPct);pe.className='port-pnl maskable '+(gPnl>=0?'up':'dn');}
+  else pe.style.display='none';
+
+  const aw=document.getElementById('alloc-wrap');
+  if(syms.length>1&&gVal>0){
+    aw.style.display='block';
+    document.getElementById('alloc-bar').innerHTML=syms.map(s=>{const pct=map[s].qty*(prices[s]?.thb||0)/gVal*100;return`<div class="alloc-seg" style="flex:${pct.toFixed(1)};background:${COINS[s]?.color||'#888'}"></div>`;}).join('');
+    document.getElementById('alloc-legend').innerHTML=syms.map(s=>{const pct=map[s].qty*(prices[s]?.thb||0)/gVal*100;return`<div class="alloc-item"><div class="alloc-dot" style="background:${COINS[s]?.color||'#888'}"></div><span>${s} ${pct.toFixed(1)}%</span></div>`;}).join('');
+  }else aw.style.display='none';
+
+  const cl=document.getElementById('coin-list');
+  if(!syms.length){cl.innerHTML='<div class="empty-state">ยังไม่มีรายการ<br>กดแท็บ + บันทึก เพื่อเริ่มต้น</div>';return;}
+  cl.innerHTML=syms.map(sym=>{
+    const c=COINS[sym]||{color:'#888',icon:'?',dec:4,name:sym};
+    const d=map[sym];const p=prices[sym];
+    const cv=p?d.qty*p.thb:null;
+    const pnl=cv!==null?cv-d.inv:null;
+    const pct=pnl!==null&&d.inv>0?pnl/d.inv*100:null;
+    return`<div class="coin-card" onclick="openDetail('${sym}')">
+      <div class="coin-ic" style="background:${c.color}">${c.icon}</div>
+      <div class="coin-info">
+        <div class="coin-name">${c.name} <span style="font-size:11px;color:var(--txt2);font-weight:400;">${sym}</span></div>
+        <div class="coin-sub maskable">${fN(d.qty,c.dec)} ${sym} · ${d.entries.length} รายการ</div>
+      </div>
+      <div class="coin-right">
+        <div class="coin-val maskable">${cv!==null?fB(cv,0):'—'}</div>
+        <div class="coin-pnl ${pct!==null?(pct>=0?'up':'dn'):''} maskable">${pct!==null?fP(pct):'—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('coin-detail').style.display='none';
+  applyMask();
+}
+
+function openDetail(sym){detailCoin=sym;renderDetail(sym);}
+
+function renderDetail(sym){
+  const c=COINS[sym]||{color:'#888',icon:'?',dec:4,name:sym};
+  const mine=entries.filter(e=>e.coin===sym);
+  const qty=mine.reduce((s,e)=>s+e.qty,0);
+  const inv=mine.reduce((s,e)=>s+e.thb,0);
+  const avg=qty>0?inv/qty:0;
+  const p=prices[sym];
+  const cv=p?qty*p.thb:null;
+  const pnl=cv!==null?cv-inv:null;
+  const pct=pnl!==null&&inv>0?pnl/inv*100:null;
+  const goal=goals[sym]||0;
+  const prog=goal>0?Math.min(qty/goal*100,100):0;
+
+  set('total-thb',cv!==null?fB(cv,0):fB(inv,0));
+  set('total-usd',p?'$'+fN(qty*p.usd,0):'');
+  const pe=document.getElementById('total-pnl');
+  if(pnl!==null&&inv>0){pe.style.display='inline-flex';pe.textContent=(pnl>=0?'+':'')+fB(pnl,0)+'  '+fP(pct);pe.className='port-pnl maskable '+(pnl>=0?'up':'dn');}
+  else pe.style.display='none';
+  document.getElementById('alloc-wrap').style.display='none';
+  document.getElementById('coin-list').style.display='none';
+
+  const sorted=[...mine].sort((a,b)=>b.date.localeCompare(a.date));
+  const det=document.getElementById('coin-detail');
+  det.style.display='block';
+  det.innerHTML=`
+    <div class="back-btn" onclick="closeDetail()">‹ กลับพอร์ต</div>
+    <div class="coin-hdr-big">
+      <div class="coin-ic-big" style="background:${c.color}">${c.icon}</div>
+      <div><div style="font-size:18px;font-weight:700;">${c.name}</div><div style="font-size:12px;color:var(--txt2);">${sym} · ${mine.length} รายการ</div></div>
+      <button class="btn-goal" onclick="toggleGoal('${sym}')">ตั้งเป้า</button>
+    </div>
+    <div class="goal-card">
+      <div id="goal-inp-${sym}" style="display:none;" class="goal-inp-row">
+        <input type="number" id="gv-${sym}" placeholder="เป้าหมาย ${sym}" step="any" min="0" inputmode="decimal"/>
+        <button class="gbtn p" onclick="saveGoal('${sym}')">บันทึก</button>
+        <button class="gbtn g" onclick="toggleGoal('${sym}')">ยกเลิก</button>
+      </div>
+      <div class="goal-cols">
+        <div><div class="g-lbl">สะสมแล้ว (${sym})</div><div class="g-num maskable">${fN(qty,c.dec)}</div></div>
+        <div><div class="g-lbl" style="text-align:right;">เป้าหมาย</div><div class="g-num g-num-r">${goal>0?fN(goal,c.dec):'ยังไม่ได้ตั้ง'}</div></div>
+      </div>
+      ${goal>0?`<div class="prog-track"><div class="prog-fill" style="width:${prog.toFixed(1)}%;background:${c.color}"></div></div><div class="goal-foot"><span>เหลืออีก ${fN(Math.max(0,goal-qty),c.dec)} ${sym}</span><span class="goal-pct" style="color:${c.color}">${prog.toFixed(2)}%</span></div>`:''}
+    </div>
+    <div class="metrics-grid">
+      <div class="mc"><div class="mc-lbl">ต้นทุนรวม</div><div class="mc-val maskable">${inv>0?fB(inv,0):'—'}</div><div class="mc-sub">${avg>0?'เฉลี่ย ฿'+fN(avg,0):''}</div></div>
+      <div class="mc"><div class="mc-lbl">ราคาตลาด</div><div class="mc-val">${p?'฿'+fN(p.thb,0):'—'}</div><div class="mc-sub">${p?'$'+fN(p.usd,4):''}</div></div>
+      <div class="mc"><div class="mc-lbl">กำไร/ขาดทุน</div><div class="mc-val maskable ${pnl!==null?(pnl>=0?'up':'dn'):''}">${pnl!==null?(pnl>=0?'+':'')+fB(pnl,0):'—'}</div></div>
+      <div class="mc"><div class="mc-lbl">% กำไร/ขาดทุน</div><div class="mc-val maskable ${pct!==null?(pct>=0?'up':'dn'):''}">${pct!==null?fP(pct):'—'}</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">ประวัติ</div>
+    ${!sorted.length?'<div class="empty-state">ยังไม่มีรายการ</div>':sorted.map(e=>{
+      const ev=p?e.qty*p.thb:null;
+      const ep=ev!==null?ev-e.thb:null;
+      const epp=ep!==null&&e.thb>0?ep/e.thb*100:null;
+      return`<div class="entry-card">
+        <div class="entry-left">
+          <div class="entry-date">${e.date}${e.note?' · '+e.note:''}</div>
+          <div class="entry-amt maskable">${fB(e.thb)}</div>
+          <div class="entry-sub maskable">${fN(e.qty,c.dec)} ${sym}</div>
+        </div>
+        <div class="entry-right">
+          <div class="entry-pnl ${epp!==null?(epp>=0?'up':'dn'):''} maskable">${epp!==null?fP(epp):'—'}</div>
+          <div class="entry-price">฿${fN(e.priceThb,0)}</div>
+        </div>
+        <button class="del-btn" onclick="delEntry(${e.id})">&#215;</button>
+      </div>`;
+    }).join('')}
+  `;
+  applyMask();
+}
+
+function closeDetail(){
+  detailCoin=null;
+  document.getElementById('coin-list').style.display='block';
+  document.getElementById('coin-detail').style.display='none';
+  renderPort();
+}
+
+function toggleGoal(sym){
+  const el=document.getElementById(`goal-inp-${sym}`);
+  if(!el)return;
+  const show=el.style.display==='none';
+  el.style.display=show?'flex':'none';
+  if(show){const v=document.getElementById(`gv-${sym}`);if(v)v.value=goals[sym]||'';}
+}
+
+function saveGoal(sym){
+  const v=parseFloat(document.getElementById(`gv-${sym}`)?.value);
+  if(!v||v<=0){toast('กรุณากรอกตัวเลขที่ถูกต้อง');return;}
+  goals[sym]=v;
+  try{localStorage.setItem('dca_g',JSON.stringify(goals));}catch(e){}
+  toast(`ตั้งเป้า ${fN(v,COINS[sym]?.dec||4)} ${sym} แล้ว`);
+  renderDetail(sym);
+}
+
+function renderChips(){
+  document.getElementById('coin-chips').innerHTML=Object.keys(COINS).map(s=>`<div class="chip ${s===selCoin?'active':''}" onclick="selC('${s}')">${s}</div>`).join('');
+}
+
+function selC(s){
+  selCoin=s;renderChips();
+  ['f-qty-auto','f-qty-manual','f-price-manual'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function setMode(m){
+  inputMode=m;
+  document.getElementById('mode-auto').className='mode-btn'+(m==='auto'?' active':'');
+  document.getElementById('mode-manual').className='mode-btn'+(m==='manual'?' active':'');
+  document.getElementById('auto-fields').style.display=m==='auto'?'block':'none';
+  document.getElementById('manual-fields').style.display=m==='manual'?'block':'none';
+}
+
+function calcAuto(){
+  if(inputMode!=='auto')return;
+  const amt=parseFloat(document.getElementById('f-amt').value)||0;
+  const px=parseFloat(document.getElementById('f-price').value)||(prices[selCoin]?.thb)||0;
+  const fi=document.getElementById('f-qty-auto');
+  fi.value=(amt>0&&px>0)?fN(amt/px,COINS[selCoin]?.dec||8):'';
+}
+
+function calcManualPrice(){
+  const amt=parseFloat(document.getElementById('f-amt').value)||0;
+  const qty=parseFloat(document.getElementById('f-qty-manual').value)||0;
+  document.getElementById('f-price-manual').value=(amt>0&&qty>0)?Math.round(amt/qty):'';
+}
+
+function addEntry(){
+  const date=document.getElementById('f-date').value;
+  const amt=parseFloat(document.getElementById('f-amt').value);
+  const note=document.getElementById('f-note').value.trim();
+  if(!date){toast('กรุณาเลือกวันที่');return;}
+  if(!amt||amt<=0){toast('กรุณากรอกจำนวนเงิน');return;}
+  let qty,px;
+  if(inputMode==='manual'){
+    qty=parseFloat(document.getElementById('f-qty-manual').value)||0;
+    if(!qty||qty<=0){toast('กรุณากรอกจำนวนเหรียญที่ได้รับจริง');return;}
+    px=amt/qty;
+  }else{
+    px=parseFloat(document.getElementById('f-price').value)||(prices[selCoin]?.thb)||0;
+    if(!px||px<=0){toast('ยังโหลดราคาไม่ได้ กรุณากรอกราคาซื้อ');return;}
+    qty=amt/px;
+  }
+  entries.push({id:Date.now(),coin:selCoin,date,thb:amt,priceThb:px,qty,note});
+  save();
+  ['f-amt','f-price','f-qty-auto','f-qty-manual','f-price-manual','f-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  toast(`บันทึกแล้ว +${fN(qty,COINS[selCoin]?.dec||4)} ${selCoin}`);
+  showTab('port');
+}
+
+function renderHistChips(){
+  const syms=['ALL',...new Set(entries.map(e=>e.coin))];
+  document.getElementById('hist-chips').innerHTML=syms.map(s=>`<div class="chip ${s===histCoin?'active':''}" onclick="setHistCoin('${s}')">${s==='ALL'?'ทั้งหมด':s}</div>`).join('');
+}
+
+function setHistCoin(s){histCoin=s;renderHistChips();renderHistory();}
+
+function renderHistory(){
+  const q=(document.getElementById('srch')?.value||'').toLowerCase();
+  const rows=entries
+    .filter(e=>histCoin==='ALL'||e.coin===histCoin)
+    .filter(e=>!q||e.date.includes(q)||String(Math.round(e.thb)).includes(q)||(e.note||'').toLowerCase().includes(q)||e.coin.toLowerCase().includes(q))
+    .sort((a,b)=>b.date.localeCompare(a.date));
+  const list=document.getElementById('entry-list');
+  if(!rows.length){list.innerHTML='<div class="empty-state">ยังไม่มีรายการ</div>';return;}
+  list.innerHTML=rows.map(e=>{
+    const c=COINS[e.coin]||{color:'#888',icon:'?',dec:4};
+    const p=prices[e.coin];
+    const cv=p?e.qty*p.thb:null;
+    const ep=cv!==null?cv-e.thb:null;
+    const epp=ep!==null&&e.thb>0?ep/e.thb*100:null;
+    return`<div class="entry-card">
+      <div class="coin-ic" style="background:${c.color};width:32px;height:32px;font-size:13px;flex-shrink:0;">${c.icon}</div>
+      <div class="entry-left">
+        <div class="entry-date">${e.date} · <span style="color:${c.color};font-weight:600;">${e.coin}</span>${e.note?' · '+e.note:''}</div>
+        <div class="entry-amt maskable">${fB(e.thb)}</div>
+        <div class="entry-sub maskable">${fN(e.qty,c.dec)} ${e.coin}</div>
+      </div>
+      <div class="entry-right">
+        <div class="entry-pnl ${epp!==null?(epp>=0?'up':'dn'):''} maskable">${epp!==null?fP(epp):'—'}</div>
+        <div class="entry-price">฿${fN(e.priceThb,0)}</div>
+      </div>
+      <button class="del-btn" onclick="delEntry(${e.id})">&#215;</button>
+    </div>`;
+  }).join('');
+  applyMask();
+}
+
+function delEntry(id){
+  if(!confirm('ลบรายการนี้?'))return;
+  entries=entries.filter(e=>e.id!==id);
+  save();
+  if(detailCoin)renderDetail(detailCoin); else renderPort();
+  if(document.getElementById('page-hist').style.display!=='none')renderHistory();
+}
+
+function save(){
+  try{localStorage.setItem('dca_e',JSON.stringify(entries));}catch(e){}
+  renderPort();
+}
+
+function toggleHide(){hidden=!hidden;applyMask();}
+function applyMask(){document.querySelectorAll('.maskable').forEach(el=>{el.style.filter=hidden?'blur(6px)':'none';el.style.userSelect=hidden?'none':'';}); }
+
+document.getElementById('f-date').valueAsDate=new Date();
+document.getElementById('page-add').style.display='none';
+document.getElementById('page-hist').style.display='none';
+renderChips();
+renderPort();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+fetchPrices();
+setInterval(fetchPrices,30000);
+</script>
+</body>
+</html>
